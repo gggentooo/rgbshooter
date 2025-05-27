@@ -1,17 +1,21 @@
 let game = new Game();
 
 function preload() {
-    game.initialize();
 }
 
 function setup() {
-    createCanvas(740, 480);
-    frameRate(60);
+    createCanvas(Game.WINDOWWIDTH, Game.WINDOWHEIGHT);
+    frameRate(Game.FRAMERATE);
+    angleMode(RADIANS);
+    ellipseMode(CENTER);
     rectMode(CENTER);
-    angleMode(DEGREES);
+    textFont("Nunito", 16);
+    game.initialize();
 }
 
 function draw() {
-    background(220);
-    game.drawObjects();
+    background(Colors.WHITE);
+    game.update();
+
+    game.draw();
 }
