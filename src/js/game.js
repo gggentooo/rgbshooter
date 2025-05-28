@@ -9,7 +9,7 @@ class Game {
     static get MAXLIFE() { return 5; }
     static get MAXBOMB() { return 8; }
 
-    static get SWAPFRAMES() { return 30; }
+    static get SWAPFRAMES() { return 24; }
 
 
     constructor() {
@@ -19,6 +19,8 @@ class Game {
         this.sprites = new SpriteManager();
         this.current_color = 0;
         this.swap_cooldown = 0;
+
+        this.debug = false;
     }
 
     get obj() { return this.objects; }
@@ -51,6 +53,11 @@ class Game {
         }
     }
 
+    checkDebugMode() {
+        if (this.debug === true) { return; }
+        if (KeyDown.D) { this.debug = true; }
+    }
+
 
     drawBoundary() {
         stroke(Colors.BLACK);
@@ -63,7 +70,7 @@ class Game {
         clip(this.statusMask);
         translate(Game.GAMEWIDTH, 0);
         this.statusBackground();
-        // this.statusText(50, 100);
+        this.statusText(50, 100);
         pop();
     }
     statusMask() {
@@ -90,7 +97,13 @@ class Game {
     statusText(x, y) {
         noStroke();
         fill(Colors.BLACK);
-        text("LIFE: ", x, y);
+        // text("Objects: " + this.obj.length, x, y);
+    }
+    debugText(x, y) {
+        noStroke();
+        fill(Colors.BLACK);
+        textSize(12);
+        text("Framerate: " + Math.round(frameRate()) + "\nObjects: " + this.obj.length, x, y);
     }
 
     drawObjects() {
@@ -103,11 +116,13 @@ class Game {
     update() {
         this.updateObjects();
         this.checkColorSwap();
+        this.checkDebugMode();
     }
 
     draw() {
         this.drawObjects();
         // this.drawBoundary();
         this.drawStatus();
+        if (this.debug === true) { this.debugText(8, 16); }
     }
 }

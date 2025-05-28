@@ -11,6 +11,7 @@ class KeyDown {
     static get Z() { return keyIsDown(90); }
     static get X() { return keyIsDown(88); }
     static get C() { return keyIsDown(67); }
+    static get D() { return keyIsDown(68); }
     static get LEFT() { return keyIsDown(37); }
     static get RIGHT() { return keyIsDown(39); }
     static get UP() { return keyIsDown(38); }
