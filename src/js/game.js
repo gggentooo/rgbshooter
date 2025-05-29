@@ -14,16 +14,19 @@ class Game {
 
     constructor() {
         this.objects = [];
+        this.particles = [];
         this.lifecount = 3;
         this.bombcount = 3;
         this.sprites = new SpriteManager();
         this.current_color = 0;
+        this.current_colortype = "R";
         this.swap_cooldown = 0;
 
         this.debug = false;
     }
 
     get obj() { return this.objects; }
+    get ptc() { return this.particles; }
     get life() { return this.lifecount; }
     get bomb() { return this.bombcount; }
     get spr() { return this.sprites; }
@@ -34,6 +37,10 @@ class Game {
         this.obj.push(new Ribbon());
         this.obj.push(new Goggles());
         this.obj.push(new Bellbottoms());
+        this.obj.push(new Enemy(150, 200, 16, 16, 12, "K", 10));
+        this.obj.push(new Enemy(300, 200, 16, 16, 12, "R", 10));
+        this.obj.push(new Enemy(200, 100, 16, 16, 12, "G", 10));
+        this.obj.push(new Enemy(250, 100, 16, 16, 12, "B", 10));
     }
 
 
@@ -41,6 +48,15 @@ class Game {
         for (var i = 0; i < this.obj.length; i++) {
             this.obj[i].update();
             if (this.obj[i].outOfBounds()) { this.obj.splice(i, 1); }
+            if (KeyDown.SHIFT && this.obj[i] instanceof EnemyShot && this.obj[i].colortype === this.current_colortype) {
+                this.obj[i].sprite.seethrough = true;
+            }
+        }
+    }
+    updateParticles() {
+        for (var i = 0; i < this.ptc.length; i++) {
+            this.ptc[i].update();
+            if (this.ptc[i].finished()) { this.ptc.splice(i, 1); }
         }
     }
 
@@ -97,11 +113,11 @@ class Game {
     statusText(x, y) {
         noStroke();
         fill(Colors.BLACK);
-        // text("Objects: " + this.obj.length, x, y);
+        text("LIFE: " + this.lifecount, x, y);
     }
     debugText(x, y) {
         noStroke();
-        fill(Colors.BLACK);
+        fill(Colors.BLACK_80);
         textSize(12);
         text("Framerate: " + Math.round(frameRate()) + "\nObjects: " + this.obj.length, x, y);
     }
@@ -111,18 +127,27 @@ class Game {
             this.obj[i].draw();
         }
     }
+    drawParticles() {
+        for (var i = 0; i < this.ptc.length; i++) {
+            this.ptc[i].draw(this.ptc[i].tx, this.ptc[i].ty, this.ptc[i].ta, this.ptc[i].ts);
+        }
+    }
 
 
     update() {
-        this.updateObjects();
-        this.checkColorSwap();
         this.checkDebugMode();
+        this.checkColorSwap();
+        this.updateObjects();
+        this.updateParticles();
     }
 
     draw() {
         this.drawObjects();
-        // this.drawBoundary();
+        this.drawParticles();
         this.drawStatus();
-        if (this.debug === true) { this.debugText(8, 16); }
+        if (this.debug === true) {
+            this.debugText(8, 16);
+            this.drawBoundary();
+        }
     }
 }

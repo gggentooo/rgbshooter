@@ -1,6 +1,7 @@
 let game = new Game();
 
 function preload() {
+    
 }
 
 function setup() {
@@ -10,6 +11,7 @@ function setup() {
     ellipseMode(CENTER);
     rectMode(CENTER);
     textFont("Nunito", 16);
+    background(Colors.WHITE);
     game.initialize();
 }
 

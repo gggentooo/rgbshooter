@@ -4,14 +4,23 @@ class SpriteManager {
         this.ribbon = new SpriteRibbon();
         this.goggles = new SpriteGoggles();
         this.bellbottoms = new SpriteBellbottoms();
+        this.textbox = new SpriteTextBox(Colors.BLACK);
+        this.textbox_r = new SpriteTextBox(Colors.RED);
+        this.textbox_g = new SpriteTextBox(Colors.GREEN);
+        this.textbox_b = new SpriteTextBox(Colors.BLUE);
         this.ss_k = new SpriteShotSource(Colors.BLACK);
         this.ss_r = new SpriteShotSource(Colors.RED);
         this.ss_g = new SpriteShotSource(Colors.GREEN);
         this.ss_b = new SpriteShotSource(Colors.BLUE);
-        this.shot_black = new SpriteShot(Colors.BLACK, true, 3, 4);
-        this.shot_red = new SpriteShot(Colors.RED, true, 3, 6);
-        this.shot_green = new SpriteShot(Colors.GREEN, true, 3, 6);
-        this.shot_blue = new SpriteShot(Colors.BLUE, true, 3, 6);
+        this.pshot_black = new SpriteShot(Colors.BLACK, false, PlayerShot.WIDTH, PlayerShot.HEIGHT);
+        this.pshot_red = new SpriteShot(Colors.RED, false, PlayerShot.WIDTH, PlayerShot.HEIGHT);
+        this.pshot_green = new SpriteShot(Colors.GREEN, false, PlayerShot.WIDTH, PlayerShot.HEIGHT);
+        this.pshot_blue = new SpriteShot(Colors.BLUE, false, PlayerShot.WIDTH, PlayerShot.HEIGHT);
+        this.eshot_black = new SpriteShot(Colors.BLACK, true, EnemyShot.WIDTH, EnemyShot.HEIGHT);
+        this.eshot_red = new SpriteShot(Colors.RED, true, EnemyShot.WIDTH, EnemyShot.HEIGHT);
+        this.eshot_green = new SpriteShot(Colors.GREEN, true, EnemyShot.WIDTH, EnemyShot.HEIGHT);
+        this.eshot_blue = new SpriteShot(Colors.BLUE, true, EnemyShot.WIDTH, EnemyShot.HEIGHT);
+        this.enemy_default_black = new SpriteEnemy(Colors.BLACK, 5);
     }
 }
 
@@ -19,21 +28,32 @@ class Sprite {
     constructor(s, c) {
         this.size = s;
         this.color = c;
-        this.currentAnims = { "spin": false, "blink": false, "fade": false };
+        this.currentAnims = { "spin": false, "blink": false, "fade": false, "fadefast": false };
         this.pa = 0;
         this.ps = 0;
+
+        this.da = 0;
 
         this.fill = false;
 
         this.anim_spin_a = 0;
         this.anim_blink_f = 0;
         this.anim_fade_f = 0;
+        this.anim_fadefast_f = 0;
+
+        this.seethrough = false;
     }
     get s() { return this.size; }
     get c() { return this.color; }
 
+    setDefaultAngle(a) { this.da = a; }
+
     draw(x, y, a, s) {
-        var appliedangle = a + this.pa;
+        if (this.seethrough) {
+            this.c.setAlpha(60);
+            this.seethrough = false;
+        }
+        var appliedangle = a + this.pa + this.da;
         var appliedscale = s + this.ps;
         translate(x, y);
         rotate(appliedangle);
@@ -45,6 +65,7 @@ class Sprite {
         scale(1 / appliedscale);
         rotate(-appliedangle);
         translate(-x, -y);
+        this.c.setAlpha(255);
     }
 
     triggerSpin() {
@@ -63,6 +84,11 @@ class Sprite {
         this.currentAnims.fade = true;
         this.anim_fade_f = 0;
     }
+    triggerFadeFast() {
+        if (this.currentAnims.fadefast === true) { return; }
+        this.currentAnims.fadefast = true;
+        this.anim_fadefast_f = 0;
+    }
 
     clearAnimations() {
         this.currentAnims.spin = false;
@@ -70,6 +96,7 @@ class Sprite {
         this.currentAnims.fade = false;
         this.anim_spin_a = 0;
         this.anim_fade_f = 0;
+        this.anim_fadefast_f = 0;
         this.c.setAlpha(255);
         this.pa = 0;
         this.ps = 0;
@@ -103,6 +130,15 @@ class Sprite {
                 this.c.setAlpha(Math.cos(this.anim_fade_f) * 128 + 128);
             }
         }
+        else if (this.currentAnims.fadefast === true) {
+            if (this.anim_fadefast_f >= PI) {
+                this.currentAnims.fadefast = false;
+                this.c.setAlpha(255);
+            } else {
+                this.anim_fadefast_f += 1.2;
+                this.c.setAlpha(Math.cos(this.anim_fadefast_f) * 128 + 128);
+            }
+        }
     }
 
     sprite() { }
@@ -116,6 +152,24 @@ class SpritePlaceholder extends Sprite {
     sprite() {
         fill(this.c);
         rect(0, 0, this.s, this.s);
+    }
+}
+
+class SpriteTextBox extends Sprite {
+    constructor(c) {
+        super(Game.GAMEWIDTH, c);
+        this.width = Game.GAMEWIDTH - 48;
+        this.height = 200;
+        this.m = 8;
+    }
+
+    sprite() {
+        noStroke();
+        fill(Colors.BLACK_200);
+        rect(0, 0, this.width, this.height, 8);
+        stroke(this.c);
+        noFill();
+        rect(0, 0, this.width - this.m * 2, this.height - this.m * 2, 8);
     }
 }
 
@@ -144,6 +198,30 @@ class SpriteShotSource extends Sprite {
     sprite() {
         line(this.origin.x, this.origin.y, this.c1.x, this.c1.y);
         line(this.origin.x, this.origin.y, this.c2.x, this.c2.y);
+    }
+}
+
+class SpriteEnemy extends Sprite {
+    constructor(c, p) {
+        super(8, c);
+        this.points = p;
+        this.ca = TWO_PI / this.points;
+        this.d = this.s * 0.1 * (this.points);
+        this.p = [];
+        for (var i = 0; i < this.points; i++) {
+            var angle = this.ca * i + HALF_PI;
+            var point1 = { "x": Math.cos(angle) * this.s, "y": Math.sin(angle) * this.s };
+            angle += this.ca / 2;
+            var point2 = { "x": Math.cos(angle) * this.d, "y": Math.sin(angle) * this.d };
+            this.p.push(point1, point2);
+        }
+    }
+
+    sprite() {
+        for (var i = 0; i < this.points * 2; i++) {
+            var next = this.p[(i + 1) % (this.points * 2)];
+            line(this.p[i].x, this.p[i].y, next.x, next.y);
+        }
     }
 }
 
@@ -210,5 +288,45 @@ class SpriteBellbottoms extends Sprite {
     sprite() {
         triangle(this.tc1.x, this.tc1.y, this.tc2.x, this.tc2.y, this.tc3.x, this.tc3.y);
         line(this.l1c1.x, this.l1c1.y, this.l1c2.x, this.l1c2.y);
+    }
+}
+
+class Particle extends Sprite {
+    constructor(x, y, c, f, s) {
+        super(4, c);
+        this.maxframes = f;
+        this.maxsize = s;
+        this.x = x;
+        this.y = y;
+        this.frames = 0;
+
+        this.tx = 0;
+        this.ty = 0;
+        this.ta = 0;
+        this.ts = 1;
+    }
+
+    finished() {
+        return this.frames >= this.maxframes;
+    }
+
+    update() {
+        this.frames += 1;
+    }
+}
+
+class ParticlePop extends Particle {
+    constructor(x, y, c, f, s) {
+        super(x, y, c, f, s);
+        this.triggerFadeFast();
+    }
+
+    sprite() {
+        push();
+        var currentsize = this.maxsize * this.frames / this.maxframes;
+        var strokeweight = 1 - this.frames / this.maxframes;
+        strokeWeight(strokeweight);
+        ellipse(this.x, this.y, currentsize, currentsize);
+        pop();
     }
 }
