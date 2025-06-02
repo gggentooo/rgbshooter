@@ -2,7 +2,7 @@ let game = new Game();
 let enemydata;
 
 function preload() {
-    enemydata = loadJSON('src/enemydata.json');
+    // enemydata = loadJSON('src/enemydata.json');
 }
 
 function setup() {

@@ -48,18 +48,18 @@ class GameSceneBattle extends GameScene {
         super(n);
         this.enemies = [];
     }
-    initialize(idx) {
+    initialize() {
         super.initialize();
-        var edata = enemydata[idx];
-        for (var i = 0; i < edata.length; i++) {
-            var d = edata[i];
-            this.spawnEnemy(d.id, d.x, d.y, d.displaysize, d.hitsize, d.color, d.points, d.rotatespeed, d.delay, d.movement, d.lifespan);
-            var ss = d.shotsources;
-            for (var j = 0; j < ss.length; j++) {
-                var source = ss[j];
-                this.enemies[d.id].addShotSource(PI + source.angle * TWO_PI / d.points, source.speed, source.firerate);
-            }
-        }
+        // var edata = enemydata[idx];
+        // for (var i = 0; i < edata.length; i++) {
+        //     var d = edata[i];
+        //     this.spawnEnemy(d.id, d.x, d.y, d.displaysize, d.hitsize, d.color, d.points, d.rotatespeed, d.delay, d.movement, d.lifespan);
+        //     var ss = d.shotsources;
+        //     for (var j = 0; j < ss.length; j++) {
+        //         var source = ss[j];
+        //         this.enemies[d.id].addShotSource(PI + source.angle * TWO_PI / d.points, source.speed, source.firerate);
+        //     }
+        // }
     }
     end() {
         for (var i = 0; i < game.obj.length; i++) {
@@ -92,7 +92,7 @@ class GSBTest1 extends GameSceneBattle {
         return (game.enemies <= 0);
     }
     initialize() {
-        super.initialize("");
+        super.initialize();
         var mov1 = [
             {
                 "frames": 0,
@@ -137,18 +137,41 @@ class GSBTest1 extends GameSceneBattle {
                 "yacc": 0
             }
         ];
-        for (var i = 0; i < 10; i++) {
-            var id = "e" + String(i + 1);
-            this.spawnEnemy(id, 400, -50, 16, 12, "K", 5, 1, i * 20, mov1, 500);
-            this.spawnEnemy(id + 10, 0, -50, 16, 12, "R", 5, 1, i * 20 + 80, mov2, 500);
-            this.spawnEnemy(id + 20, 400, -50, 16, 12, "G", 5, 1, i * 20 + 160, mov1, 500);
-            this.spawnEnemy(id + 30, 0, -50, 16, 12, "B", 5, 1, i * 20 + 240, mov2, 500);
+        var mov3 = [
+            {
+                "frames": 0,
+                "xacc": 0,
+                "yacc": 0.2
+            },
+            {
+                "frames": 16,
+                "xacc": 0,
+                "yacc": -0.1
+            },
+            {
+                "frames": 48,
+                "xacc": 0,
+                "yacc": 0
+            }
+        ]
+        var idx = 0;
+        for (; idx < 10; idx++) {
+            var id = "e" + String(idx + 1);
+            this.spawnEnemy(id, 400, -50, 16, 12, "K", 5, 1, idx * 20, mov1, 500);
+            this.spawnEnemy(id + 10, 0, -50, 16, 12, "R", 5, -1, idx * 20 + 80, mov2, 500);
+            this.spawnEnemy(id + 20, 400, -50, 16, 12, "G", 5, -1, idx * 20 + 160, mov1, 500);
+            this.spawnEnemy(id + 30, 0, -50, 16, 12, "B", 5, 1, idx * 20 + 240, mov2, 500);
             for (var j = 0; j < 5; j++) {
                 this.enemies[id].addShotSource(PI + j * TWO_PI / 5, 6, 12);
                 this.enemies[id + 10].addShotSource(PI + j * TWO_PI / 5, 6, 12);
                 this.enemies[id + 20].addShotSource(PI + j * TWO_PI / 5, 6, 12);
                 this.enemies[id + 30].addShotSource(PI + j * TWO_PI / 5, 6, 12);
             }
+        }
+        this.spawnEnemy("e" + String(idx + 1), 200, -25, 20, 16, "K", 7, 1, 300, mov3, 1200);
+        for (var j = 0; j < 7; j++) {
+            this.enemies["e" + String(idx + 1)].addShotSource(PI + j * TWO_PI / 14, 8, 12);
+            this.enemies["e" + String(idx + 1)].addShotSource(PI + j * TWO_PI / 14 + TWO_PI / 14, 8, 10);
         }
     }
 }
@@ -160,7 +183,7 @@ class GSBTest2 extends GameSceneBattle {
         return (game.enemies <= 0);
     }
     initialize() {
-        super.initialize("test2");
+        super.initialize();
     }
 }
 
