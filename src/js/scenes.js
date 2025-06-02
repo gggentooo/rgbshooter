@@ -168,7 +168,7 @@ class GSBTest1 extends GameSceneBattle {
                 this.enemies[id + 30].addShotSource(PI + j * TWO_PI / 5, 6, 12);
             }
         }
-        this.spawnEnemy("e" + String(idx + 1), 200, -25, 20, 16, "K", 7, 1, 300, mov3, 1200);
+        this.spawnEnemy("e" + String(idx + 1), Game.GAMEWIDTH / 2, -25, 20, 16, "K", 7, 1, 300, mov3, 1200);
         for (var j = 0; j < 7; j++) {
             this.enemies["e" + String(idx + 1)].addShotSource(PI + j * TWO_PI / 14, 8, 12);
             this.enemies["e" + String(idx + 1)].addShotSource(PI + j * TWO_PI / 14 + TWO_PI / 14, 8, 10);
