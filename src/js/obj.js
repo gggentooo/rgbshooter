@@ -74,7 +74,30 @@ class GameObject {
 }
 
 class Bomb extends GameObject {
+    constructor(x, y, w, h, r, c) {
+        super(x, y, w, h, r, c);
+    }
 
+    outOfBounds() {
+        return this.r > 300;
+    }
+
+    draw() {
+        stroke(this.colorval);
+        noFill();
+        ellipse(this.x, this.y, this.r * 2, this.r * 2);
+    }
+
+    update() {
+        this.radius += 6;
+        for (var i = 0; i < game.obj.length; i++) {
+            var o = game.obj[i];
+            if (this.isColliding(o) && this.clr != o.clr) {
+                if (o instanceof EnemyShot) { o.destruct(); }
+                else if (o instanceof Enemy) { o.currenthealth -= 20; }
+            }
+        }
+    }
 }
 
 class Bullet extends GameObject {
@@ -358,6 +381,7 @@ class Player extends GameObject {
     static get sb_bottom() { return Game.GAMEHEIGHT - Player.h / 2 - 1; }
     static get FADE_FRAMES() { return 30 }
     static get INVINCIBLE_FRAMES() { return 90; }
+    static get BOMB_COOLDOWN() { return 45; }
 
     constructor(c, r) {
         super(Game.GAMEWIDTH / 2, Game.GAMEHEIGHT - Game.BOUNDSMARGIN, Player.w, Player.h, r, c);
@@ -370,6 +394,7 @@ class Player extends GameObject {
         this.ss = [];
 
         this.invincible = 0;
+        this.bombcooldown = 0;
     }
     get next_color() { return 0; }
     get speed_default() { return 4; }
@@ -425,6 +450,7 @@ class Player extends GameObject {
                     if (game.lifecount <= 0) {
                         game.current_scene = game.scenes.gameover;
                     }
+                    game.bombcount = Game.RESETBOMB;
                 }
                 o.destruct();
             }
@@ -437,6 +463,7 @@ class Player extends GameObject {
                     if (game.lifecount <= 0) {
                         game.current_scene = game.scenes.gameover;
                     }
+                    game.bombcount = Game.RESETBOMB;
                 }
             }
         }
@@ -445,6 +472,17 @@ class Player extends GameObject {
     shoot() {
         for (var i = 0; i < this.ss.length; i++) {
             this.ss[i].shoot();
+        }
+    }
+
+    useBomb() {
+        if (this.bombcooldown > 0 || game.bombcount <= 0) { return; }
+        else {
+            game.bombcount -= 1;
+            this.bombcooldown = Player.BOMB_COOLDOWN;
+            game.obj.push(new Bomb(this.x, this.y, 0, 0, 4, this.colortype));
+            this.invincible = Player.INVINCIBLE_FRAMES / 2;
+            this.sprite.triggerBlink(this.invincible);
         }
     }
 
@@ -475,6 +513,9 @@ class Player extends GameObject {
         } else {
             this.invincible -= 1;
         }
+        if (this.bombcooldown > 0) {
+            this.bombcooldown -= 1;
+        }
         for (var i = 0; i < this.ss.length; i++) {
             this.ss[i].updatePosition();
         }
@@ -482,7 +523,7 @@ class Player extends GameObject {
             this.shoot();
         }
         if (KeyDown.X) {
-            this.sprite.triggerBlink(Player.INVINCIBLE_FRAMES);
+            this.useBomb();
         }
     }
 }

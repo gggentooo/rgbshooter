@@ -8,6 +8,7 @@ class Game {
 
     static get MAXLIFE() { return 5; }
     static get MAXBOMB() { return 8; }
+    static get RESETBOMB() { return 3; }
 
     static get SWAPFRAMES() { return 24; }
 
@@ -128,7 +129,7 @@ class Game {
     statusText(x, y) {
         noStroke();
         fill(Colors.BLACK);
-        text("LIFE: " + this.lifecount, x, y);
+        text("LIFE: " + this.lifecount + "\nBOMB: " + this.bombcount, x, y);
     }
     debugText(x, y) {
         noStroke();
