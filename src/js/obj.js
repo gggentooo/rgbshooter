@@ -229,12 +229,17 @@ class PlayerShotSource extends ShotSource {
 }
 
 class Enemy extends GameObject {
-    constructor(x, y, s, r, c, points, rspeed, d) {
+    constructor(x, y, s, r, c, points, rspeed, d, m, lfsp) {
         super(x, y, s, s, r, c);
         game.enemies += 1;
 
         this.spawnframe = frameCount;
         this.delay = d;
+        this.lifespan = lfsp;
+
+        this.movement = m;
+        this.xvel = 0;
+        this.yvel = 0;
 
         this.maxhealth = points * 4;
         this.currenthealth = this.maxhealth;
@@ -318,10 +323,24 @@ class Enemy extends GameObject {
         this.currentrotation += this.rotatespeed / 180 * PI;
         this.sprite.da = this.currentrotation;
     }
+    updatePosition() {
+        var xacc = 0;
+        var yacc = 0;
+        for (var i = 0; i < this.movement.length; i++) {
+            if (game.current_scene.currentframe - this.delay > this.movement[i].frames) {
+                xacc = this.movement[i].xacc;
+                yacc = this.movement[i].yacc;
+            }
+        }
+        this.xvel += xacc;
+        this.yvel += yacc;
+        this.addCoord(this.xvel, this.yvel);
+    }
 
     update() {
         if (game.current_scene.currentframe < this.delay) { return; }
         this.updateRotation();
+        this.updatePosition();
         for (var i = 0; i < this.ss.length; i++) {
             this.ss[i].updatePosition();
         }
@@ -408,6 +427,17 @@ class Player extends GameObject {
                     }
                 }
                 o.destruct();
+            }
+            else if (o instanceof Enemy && this.isColliding(o)) {
+                if (this.colortype != o.colortype) {
+                    game.ptc.push(new ParticleExplode(this.x, this.y, this.colorvalue, 16, 72));
+                    this.invincible = Player.INVINCIBLE_FRAMES;
+                    this.sprite.triggerBlink(this.invincible);
+                    game.lifecount -= 1;
+                    if (game.lifecount <= 0) {
+                        game.current_scene = game.scenes.gameover;
+                    }
+                }
             }
         }
     }

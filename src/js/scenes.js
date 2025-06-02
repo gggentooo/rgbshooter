@@ -53,7 +53,7 @@ class GameSceneBattle extends GameScene {
         var edata = enemydata[idx];
         for (var i = 0; i < edata.length; i++) {
             var d = edata[i];
-            this.spawnEnemy(d.id, d.x, d.y, d.displaysize, d.hitsize, d.color, d.points, d.rotatespeed, d.delay);
+            this.spawnEnemy(d.id, d.x, d.y, d.displaysize, d.hitsize, d.color, d.points, d.rotatespeed, d.delay, d.movement, d.lifespan);
             var ss = d.shotsources;
             for (var j = 0; j < ss.length; j++) {
                 var source = ss[j];
@@ -70,8 +70,8 @@ class GameSceneBattle extends GameScene {
             this.finished_ending = true;
         }
     }
-    spawnEnemy(id, x, y, ds, hs, c, p, rsp, d) {
-        this.enemies[id] = new Enemy(x, y, ds, hs, c, p, rsp, d);
+    spawnEnemy(id, x, y, ds, hs, c, p, rsp, d, m, lfsp) {
+        this.enemies[id] = new Enemy(x, y, ds, hs, c, p, rsp, d, m, lfsp);
         game.obj.push(this.enemies[id]);
     }
     update() {
@@ -92,7 +92,64 @@ class GSBTest1 extends GameSceneBattle {
         return (game.enemies <= 0);
     }
     initialize() {
-        super.initialize("test1");
+        super.initialize("");
+        var mov1 = [
+            {
+                "frames": 0,
+                "xacc": 0.1,
+                "yacc": 0.08
+            },
+            {
+                "frames": 16,
+                "xacc": 0,
+                "yacc": 0
+            },
+            {
+                "frames": 20,
+                "xacc": -0.1,
+                "yacc": 0.05
+            },
+            {
+                "frames": 32,
+                "xacc": -0.05,
+                "yacc": 0
+            }
+        ];
+        var mov2 = [
+            {
+                "frames": 0,
+                "xacc": -0.1,
+                "yacc": 0.08
+            },
+            {
+                "frames": 16,
+                "xacc": 0,
+                "yacc": 0
+            },
+            {
+                "frames": 20,
+                "xacc": 0.1,
+                "yacc": 0.05
+            },
+            {
+                "frames": 32,
+                "xacc": 0.05,
+                "yacc": 0
+            }
+        ];
+        for (var i = 0; i < 10; i++) {
+            var id = "e" + String(i + 1);
+            this.spawnEnemy(id, 400, -50, 16, 12, "K", 5, 1, i * 20, mov1, 500);
+            this.spawnEnemy(id + 10, 0, -50, 16, 12, "R", 5, 1, i * 20 + 80, mov2, 500);
+            this.spawnEnemy(id + 20, 400, -50, 16, 12, "G", 5, 1, i * 20 + 160, mov1, 500);
+            this.spawnEnemy(id + 30, 0, -50, 16, 12, "B", 5, 1, i * 20 + 240, mov2, 500);
+            for (var j = 0; j < 5; j++) {
+                this.enemies[id].addShotSource(PI + j * TWO_PI / 5, 6, 12);
+                this.enemies[id + 10].addShotSource(PI + j * TWO_PI / 5, 6, 12);
+                this.enemies[id + 20].addShotSource(PI + j * TWO_PI / 5, 6, 12);
+                this.enemies[id + 30].addShotSource(PI + j * TWO_PI / 5, 6, 12);
+            }
+        }
     }
 }
 class GSBTest2 extends GameSceneBattle {

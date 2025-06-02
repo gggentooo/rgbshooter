@@ -50,10 +50,18 @@ class Game {
 
     updateObjects() {
         for (var i = 0; i < this.obj.length; i++) {
-            this.obj[i].update();
-            if (this.obj[i].outOfBounds()) { this.obj.splice(i, 1); }
-            if (KeyDown.SHIFT && this.obj[i] instanceof EnemyShot && this.obj[i].colortype === this.current_colortype) {
-                this.obj[i].sprite.seethrough = true;
+            var o = this.obj[i];
+            if (o instanceof Enemy && (frameCount - o.spawnframe > o.lifespan)) { o.destruct(); }
+            o.update();
+            if (o.outOfBounds()) { this.obj.splice(i, 1); }
+            if (KeyDown.SHIFT && (o instanceof EnemyShot || o instanceof Enemy) && o.colortype === this.current_colortype) {
+                o.sprite.seethrough = true;
+                if (o instanceof Enemy) {
+                    var ss = o.ss;
+                    for (var j = 0; j < ss.length; j++) {
+                        ss[j].sprite.seethrough = true;
+                    }
+                }
             }
         }
     }
