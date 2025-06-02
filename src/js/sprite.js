@@ -1,26 +1,6 @@
 class SpriteManager {
     loadSprites() {
         this.placeholder = new SpritePlaceholder();
-        this.ribbon = new SpriteRibbon();
-        this.goggles = new SpriteGoggles();
-        this.bellbottoms = new SpriteBellbottoms();
-        this.textbox = new SpriteTextBox(Colors.BLACK);
-        this.textbox_r = new SpriteTextBox(Colors.RED);
-        this.textbox_g = new SpriteTextBox(Colors.GREEN);
-        this.textbox_b = new SpriteTextBox(Colors.BLUE);
-        this.ss_k = new SpriteShotSource(Colors.BLACK);
-        this.ss_r = new SpriteShotSource(Colors.RED);
-        this.ss_g = new SpriteShotSource(Colors.GREEN);
-        this.ss_b = new SpriteShotSource(Colors.BLUE);
-        this.pshot_black = new SpriteShot(Colors.BLACK, false, PlayerShot.WIDTH, PlayerShot.HEIGHT);
-        this.pshot_red = new SpriteShot(Colors.RED, false, PlayerShot.WIDTH, PlayerShot.HEIGHT);
-        this.pshot_green = new SpriteShot(Colors.GREEN, false, PlayerShot.WIDTH, PlayerShot.HEIGHT);
-        this.pshot_blue = new SpriteShot(Colors.BLUE, false, PlayerShot.WIDTH, PlayerShot.HEIGHT);
-        this.eshot_black = new SpriteShot(Colors.BLACK, true, EnemyShot.WIDTH, EnemyShot.HEIGHT);
-        this.eshot_red = new SpriteShot(Colors.RED, true, EnemyShot.WIDTH, EnemyShot.HEIGHT);
-        this.eshot_green = new SpriteShot(Colors.GREEN, true, EnemyShot.WIDTH, EnemyShot.HEIGHT);
-        this.eshot_blue = new SpriteShot(Colors.BLUE, true, EnemyShot.WIDTH, EnemyShot.HEIGHT);
-        this.enemy_default_black = new SpriteEnemy(Colors.BLACK, 5);
     }
 }
 
@@ -202,8 +182,8 @@ class SpriteShotSource extends Sprite {
 }
 
 class SpriteEnemy extends Sprite {
-    constructor(c, p) {
-        super(8, c);
+    constructor(c, p, s) {
+        super(s / 2, c);
         this.points = p;
         this.ca = TWO_PI / this.points;
         this.d = this.s * 0.1 * (this.points);
@@ -318,7 +298,6 @@ class Particle extends Sprite {
 class ParticlePop extends Particle {
     constructor(x, y, c, f, s) {
         super(x, y, c, f, s);
-        this.triggerFadeFast();
     }
 
     sprite() {
@@ -327,6 +306,34 @@ class ParticlePop extends Particle {
         var strokeweight = 1 - this.frames / this.maxframes;
         strokeWeight(strokeweight);
         ellipse(this.x, this.y, currentsize, currentsize);
+        pop();
+    }
+}
+
+class ParticleExplode extends Particle {
+    constructor(x, y, c, f, s) {
+        super(x, y, c, f, s);
+        this.angle1 = Math.random() * TWO_PI;
+        this.angle2 = Math.random() * TWO_PI;
+        this.angle3 = Math.random() * TWO_PI;
+        this.delay1 = this.maxframes / 2;
+        this.delay2 = this.maxframes / 3;
+    }
+
+    sprite() {
+        push();
+        var width1 = this.maxsize * (this.frames - this.delay1) / (this.maxframes - this.delay1);
+        var width2 = this.maxsize * (this.frames - this.delay2) / (this.maxframes - this.delay2);
+        var width3 = this.maxsize * this.frames / this.maxframes;
+        var height = this.maxsize / 8 * this.frames / this.maxframes;
+        var strokeweight = 1 - this.frames / this.maxframes;
+        strokeWeight(strokeweight);
+        rotateWithAnchor(this.x, this.y, this.angle1);
+        ellipse(this.x, this.y, width1, height);
+        rotateWithAnchor(this.x, this.y, this.angle2);
+        ellipse(this.x, this.y, width2, height);
+        rotateWithAnchor(this.x, this.y, this.angle3);
+        ellipse(this.x, this.y, width3, height);
         pop();
     }
 }

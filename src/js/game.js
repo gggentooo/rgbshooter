@@ -18,11 +18,16 @@ class Game {
         this.lifecount = 3;
         this.bombcount = 3;
         this.sprites = new SpriteManager();
+        this.scenes = new SceneManager();
+        this.current_scene = null;
+        this.changing_scenes = false;
         this.current_color = 0;
         this.current_colortype = "R";
         this.swap_cooldown = 0;
 
         this.debug = false;
+
+        this.enemies = 0;
     }
 
     get obj() { return this.objects; }
@@ -33,14 +38,13 @@ class Game {
 
     initialize() {
         this.sprites.loadSprites();
+        this.scenes.loadScenes();
         this.obj.splice(0, this.obj.length);
         this.obj.push(new Ribbon());
         this.obj.push(new Goggles());
         this.obj.push(new Bellbottoms());
-        this.obj.push(new Enemy(150, 200, 16, 16, 12, "K", 10));
-        this.obj.push(new Enemy(300, 200, 16, 16, 12, "R", 10));
-        this.obj.push(new Enemy(200, 100, 16, 16, 12, "G", 10));
-        this.obj.push(new Enemy(250, 100, 16, 16, 12, "B", 10));
+        this.current_scene = this.scenes.test1;
+        this.current_scene.initialize();
     }
 
 
@@ -104,10 +108,13 @@ class Game {
         rotateWithAnchor(b.x, b.y, 0.1);
         stroke(Colors.BLUE);
         triangle(b.x, b.y, b.x - b.h, b.y + b.h * Math.sqrt(3), b.x + b.h, b.y + b.h * Math.sqrt(3));
+        // console.log("Triangle points: ", b.x, b.y, b.x - b.h, b.y + b.h * Math.sqrt(3), b.x + b.h, b.y + b.h * Math.sqrt(3))
         rotateWithAnchor(r.x, r.y, 1.6);
         stroke(Colors.RED);
         line(r.x - Math.cos(QUARTER_PI) * r.l, r.y - Math.sin(QUARTER_PI) * r.l, r.x + Math.cos(QUARTER_PI) * r.l, r.y + Math.sin(QUARTER_PI) * r.l);
         line(r.x - Math.cos(HALF_PI + QUARTER_PI) * r.l, r.y - Math.sin(HALF_PI + QUARTER_PI) * r.l, r.x + Math.cos(HALF_PI + QUARTER_PI) * r.l, r.y + Math.sin(HALF_PI + QUARTER_PI) * r.l);
+        // console.log("Line1 points: ", r.x - Math.cos(QUARTER_PI) * r.l, r.y - Math.sin(QUARTER_PI) * r.l, r.x + Math.cos(QUARTER_PI) * r.l, r.y + Math.sin(QUARTER_PI) * r.l);
+        // console.log("Line2 points: ", r.x - Math.cos(HALF_PI + QUARTER_PI) * r.l, r.y - Math.sin(HALF_PI + QUARTER_PI) * r.l, r.x + Math.cos(HALF_PI + QUARTER_PI) * r.l, r.y + Math.sin(HALF_PI + QUARTER_PI) * r.l);
         pop();
     }
     statusText(x, y) {
@@ -119,7 +126,7 @@ class Game {
         noStroke();
         fill(Colors.BLACK_80);
         textSize(12);
-        text("Framerate: " + Math.round(frameRate()) + "\nObjects: " + this.obj.length, x, y);
+        text("Framerate: " + Math.round(frameRate()) + "\nObjects: " + this.obj.length + "\nEnemy count: " + this.enemies, x, y);
     }
 
     drawObjects() {
@@ -135,19 +142,22 @@ class Game {
 
 
     update() {
-        this.checkDebugMode();
-        this.checkColorSwap();
-        this.updateObjects();
-        this.updateParticles();
+        if (this.changing_scenes) {
+            this.current_scene.end();
+            if (this.current_scene.finished_ending) {
+                this.changing_scenes = false;
+                this.current_scene = this.current_scene.next;
+                this.current_scene.initialize();
+            }
+        } else {
+            this.current_scene.update();
+            if (this.current_scene.sceneFinished()) {
+                this.changing_scenes = true;
+            }
+        }
     }
 
     draw() {
-        this.drawObjects();
-        this.drawParticles();
-        this.drawStatus();
-        if (this.debug === true) {
-            this.debugText(8, 16);
-            this.drawBoundary();
-        }
+        this.current_scene.draw();
     }
 }

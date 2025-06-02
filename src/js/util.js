@@ -3,8 +3,10 @@ class Colors {
     static get BLACK_80() { return color(10, 6, 20, 80); }
     static get BLACK_200() { return color(10, 6, 20, 200); }
     static get WHITE() { return color(251, 250, 252); }
+    static get WHITE_80() { return color(251, 250, 252, 80); }
+    static get WHITE_200() { return color(251, 250, 252, 200); }
     static get RED() { return color(250, 22, 76); }
-    static get GREEN() { return color(4, 208, 18); }
+    static get GREEN() { return color(4, 192, 9); }
     static get BLUE() { return color(40, 59, 235); }
 }
 

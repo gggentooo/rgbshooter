@@ -56,18 +56,18 @@ class GameObject {
 
     drawHitbox() {
         stroke(Colors.RED);
-        fill(Colors.RED);
+        fill(Colors.WHITE_200);
         ellipse(this.x, this.y, this.r, this.r);
-        stroke(Colors.WHITE);
-        noFill();
-        ellipse(this.x, this.y, this.r - 3, this.r - 3);
     }
 
     outOfBounds() { return false; }
 
     draw() {
         this.drawSprite();
-        // this.drawHitbox();
+    }
+
+    destruct() {
+        game.obj.splice(game.obj.indexOf(this), 1);
     }
 
     update() { }
@@ -78,22 +78,25 @@ class Bomb extends GameObject {
 }
 
 class Bullet extends GameObject {
-    constructor(x, y, w, h, r, c, d, s) {
+    constructor(x, y, w, h, r, c, d, s, src) {
         super(x, y, w, h, r, c);
         this.direction = d;
         this.speed = s;
         this.xvel = this.speed * Math.cos(this.direction);
         this.yvel = this.speed * Math.sin(this.direction);
         this.sprite.setDefaultAngle(d);
+        this.source = src;
     }
+
+    get src() { return this.source; }
 
     outOfBounds() {
         return (this.x < this.sb_left || this.x > this.sb_right || this.y < this.sb_top || this.y > this.sb_bottom);
     }
 
-    destruct(i) {
+    destruct() {
         game.ptc.push(new ParticlePop(this.x, this.y, this.colorvalue, 8, 16));
-        game.obj.splice(i, 1);
+        super.destruct();
     }
 
     update() {
@@ -105,8 +108,8 @@ class EnemyShot extends Bullet {
     static get WIDTH() { return 2; }
     static get HEIGHT() { return 3; }
     static get RADIUS() { return 2; }
-    constructor(x, y, w, h, r, c, d, s) {
-        super(x, y, w, h, r, c, d, s);
+    constructor(x, y, w, h, r, c, d, s, src) {
+        super(x, y, w, h, r, c, d, s, src);
         switch (c) {
             case "K":
                 this.sprite = new SpriteShot(Colors.BLACK, true, EnemyShot.WIDTH, EnemyShot.HEIGHT);
@@ -128,8 +131,8 @@ class PlayerShot extends Bullet {
     static get WIDTH() { return 3; }
     static get HEIGHT() { return 5; }
     static get RADIUS() { return 4; }
-    constructor(x, y, w, h, r, c, d, s) {
-        super(x, y, w, h, r, c, d, s);
+    constructor(x, y, w, h, r, c, d, s, src) {
+        super(x, y, w, h, r, c, d, s, src);
         switch (c) {
             case "K":
                 this.sprite = new SpriteShot(Colors.BLACK, false, PlayerShot.WIDTH, PlayerShot.HEIGHT);
@@ -153,7 +156,9 @@ class ShotSource extends GameObject {
         this.owner = o;
         this.offsetx = x;
         this.offsety = y;
+        this.distfromowner = distBetween(o.c, { "x": o.x + this.offsetx, "y": o.y + this.offsety });
         this.angle = a;
+        this.rotateangle = 0;
         this.speed = sp;
         this.firerate = fr;
         this.soffsetx = sx;
@@ -178,8 +183,15 @@ class ShotSource extends GameObject {
     }
 
     updatePosition() {
-        if (this.owner instanceof Player && KeyDown.SHIFT) { this.setCoord(this.owner.x + this.soffsetx, this.owner.y + this.soffsety); }
-        else { this.setCoord(this.owner.x + this.offsetx, this.owner.y + this.offsety); }
+        if (this.owner instanceof Player && KeyDown.SHIFT) {
+            this.setCoord(this.owner.x + this.soffsetx, this.owner.y + this.soffsety);
+        } else if (this.owner instanceof Enemy && this.owner.currentrotation != 0) {
+            this.rotateangle = this.owner.currentrotation;
+            this.appliedangle = this.angle + this.rotateangle;
+            this.setCoord(this.owner.x + this.distfromowner * cos(this.appliedangle - HALF_PI), this.owner.y + this.distfromowner * sin(this.appliedangle - HALF_PI));
+        } else {
+            this.setCoord(this.owner.x + this.offsetx, this.owner.y + this.offsety);
+        }
     }
 
     shoot() { }
@@ -196,8 +208,8 @@ class EnemyShotSource extends ShotSource {
 
     shoot() {
         if (frameCount % this.firerate != 0) { return; }
-        this.appliedangle = this.angle;
-        game.obj.push(new EnemyShot(this.x, this.y, EnemyShot.WIDTH, EnemyShot.HEIGHT, EnemyShot.RADIUS, this.colortype, -HALF_PI + this.appliedangle, this.speed));
+        this.appliedangle = this.angle + this.rotateangle;
+        game.obj.push(new EnemyShot(this.x, this.y, EnemyShot.WIDTH, EnemyShot.HEIGHT, EnemyShot.RADIUS, this.colortype, -HALF_PI + this.appliedangle, this.speed, this.owner));
     }
 }
 
@@ -212,35 +224,46 @@ class PlayerShotSource extends ShotSource {
         if (this.appliedangle === null) {
             this.appliedangle = (KeyDown.SHIFT) ? (Math.random() - 0.5) * Goggles.SLOW_SHOTSPREAD : (Math.random() - 0.5) * Goggles.SHOTSPREAD;
         }
-        game.obj.push(new PlayerShot(this.x, this.y, PlayerShot.WIDTH, PlayerShot.HEIGHT, PlayerShot.RADIUS, this.colortype, -HALF_PI + this.appliedangle, this.speed));
+        game.obj.push(new PlayerShot(this.x, this.y, PlayerShot.WIDTH, PlayerShot.HEIGHT, PlayerShot.RADIUS, this.colortype, -HALF_PI + this.appliedangle, this.speed, this.owner));
     }
 }
 
 class Enemy extends GameObject {
-    constructor(x, y, w, h, r, c, hp) {
-        super(x, y, w, h, r, c);
+    constructor(x, y, s, r, c, points, rspeed, d) {
+        super(x, y, s, s, r, c);
+        game.enemies += 1;
 
-        this.maxhealth = hp;
+        this.spawnframe = frameCount;
+        this.delay = d;
+
+        this.maxhealth = points * 4;
         this.currenthealth = this.maxhealth;
+
+        this.rotatespeed = rspeed;
+        this.currentrotation = 0;
 
         switch (c) {
             case "K":
-                this.sprite = new SpriteEnemy(Colors.BLACK, 5);
+                this.sprite = new SpriteEnemy(Colors.BLACK, points, s);
                 break;
             case "R":
-                this.sprite = new SpriteEnemy(Colors.RED, 4);
+                this.sprite = new SpriteEnemy(Colors.RED, points, s);
                 break;
             case "G":
-                this.sprite = new SpriteEnemy(Colors.GREEN, 6);
+                this.sprite = new SpriteEnemy(Colors.GREEN, points, s);
                 break;
             case "B":
-                this.sprite = new SpriteEnemy(Colors.BLUE, 3);
+                this.sprite = new SpriteEnemy(Colors.BLUE, points, s);
                 break;
         }
 
         this.ss = [];
+    }
 
-        this.ss.push(new EnemyShotSource(this, this.colortype, 0, 12, PI, 4, 24));
+    addShotSource(a, sp, fr) {
+        var xoff = this.w * Math.sin(a);
+        var yoff = this.w * Math.cos(a) * -1;
+        this.ss.push(new EnemyShotSource(this, this.colortype, xoff, yoff, a, sp, fr));
     }
 
     shoot() {
@@ -255,33 +278,50 @@ class Enemy extends GameObject {
             var o = game.obj[i];
             if (o instanceof PlayerShot && this.isColliding(o)) {
                 this.sprite.triggerBlink(2);
-                o.destruct(i);
+                o.destruct();
                 if (this.colortype === o.colortype) {
                     this.currenthealth -= 0.5;
                 } else {
                     this.currenthealth -= 1;
                 }
-                if (this.currenthealth <= 0) { this.destruct(); }
             }
         }
+        if (this.currenthealth <= 0) { this.destruct(); }
     }
 
     destruct() {
-        game.ptc.push(new ParticlePop(this.x, this.y, this.colorvalue, 24, 32));
-        game.ptc.push(new ParticlePop(this.x, this.y, this.colorvalue, 24, 48));
-        game.obj.splice(game.obj.indexOf(this), 1);
+        game.ptc.push(new ParticlePop(this.x, this.y, this.colorvalue, 16, 60));
+        game.ptc.push(new ParticleExplode(this.x, this.y, this.colorvalue, 12, 60));
+        game.enemies -= 1;
+
+        for (var i = 0; i < game.obj.length; i++) {
+            var o = game.obj[i];
+            if (o instanceof Bullet && o.src === this) {
+                o.destruct();
+            }
+        }
+
+        super.destruct();
     }
 
     draw() {
         for (var i = 0; i < this.ss.length; i++) {
             this.ss[i].drawSprite();
         }
-        if (game.debug === true) { this.drawHitbox(); }
         this.sprite.animate();
         this.drawSprite();
+        if (game.debug === true) { this.drawHitbox(); }
+    }
+
+    updateRotation() {
+        if (this.rotatespeed === 0) { return; }
+        this.currentrotation += this.rotatespeed / 180 * PI;
+        this.sprite.da = this.currentrotation;
     }
 
     update() {
+        if (game.current_scene.currentframe < this.delay) { return; }
+        this.updateRotation();
         for (var i = 0; i < this.ss.length; i++) {
             this.ss[i].updatePosition();
         }
@@ -359,11 +399,15 @@ class Player extends GameObject {
             var o = game.obj[i];
             if (o instanceof EnemyShot && this.isColliding(o)) {
                 if (this.colortype != o.colortype) {
+                    game.ptc.push(new ParticleExplode(this.x, this.y, this.colorvalue, 16, 72));
                     this.invincible = Player.INVINCIBLE_FRAMES;
                     this.sprite.triggerBlink(this.invincible);
                     game.lifecount -= 1;
+                    if (game.lifecount <= 0) {
+                        game.current_scene = game.scenes.gameover;
+                    }
                 }
-                o.destruct(i);
+                o.destruct();
             }
         }
     }
@@ -384,12 +428,14 @@ class Player extends GameObject {
             for (var i = 0; i < this.ss.length; i++) {
                 this.ss[i].drawSprite();
             }
-            if (game.debug === true) { this.drawHitbox(); }
         }
         this.sprite.animate();
         this.drawSprite();
         if (this.active && game.swap_cooldown > 0) { this.drawSwapCooldown(); }
+        if (this.active && game.debug === true && this.invincible === 0) { this.drawHitbox(); }
     }
+
+    destruct() { return; }
 
     update() {
         if (!this.active) { return; }

@@ -1,0 +1,174 @@
+{
+    "test1": [
+        {
+            "id": "e1",
+            "delay": 0,
+            "x": 150,
+            "y": 200,
+            "displaysize": 16,
+            "hitsize": 12,
+            "color": "R",
+            "points": 5,
+            "rotatespeed": 2,
+            "shotsources": [
+                {
+                    "angle": 0,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 1,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 2,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 3,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 4,
+                    "speed": 4,
+                    "firerate": 12
+                }
+            ]
+        },
+        {
+            "id": "e2",
+            "delay": 0,
+            "x": 250,
+            "y": 200,
+            "displaysize": 16,
+            "hitsize": 12,
+            "color": "G",
+            "points": 5,
+            "rotatespeed": -2,
+            "shotsources": [
+                {
+                    "angle": 0,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 1,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 2,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 3,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 4,
+                    "speed": 4,
+                    "firerate": 12
+                }
+            ]
+        },
+        {
+            "id": "e3",
+            "delay": 0,
+            "x": 350,
+            "y": 200,
+            "displaysize": 16,
+            "hitsize": 12,
+            "color": "B",
+            "points": 5,
+            "rotatespeed": 2,
+            "shotsources": [
+                {
+                    "angle": 0,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 1,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 2,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 3,
+                    "speed": 4,
+                    "firerate": 12
+                },
+                {
+                    "angle": 4,
+                    "speed": 4,
+                    "firerate": 12
+                }
+            ]
+        }
+    ],
+    "test2": [
+        {
+            "id": "e2",
+            "delay": 0,
+            "x": 250,
+            "y": 200,
+            "displaysize": 16,
+            "hitsize": 12,
+            "color": "R",
+            "points": 5,
+            "rotatespeed": 4,
+            "shotsources": [
+                {
+                    "angle": 0,
+                    "speed": 4,
+                    "firerate": 20
+                }
+            ]
+        },
+        {
+            "id": "e3",
+            "delay": 60,
+            "x": 50,
+            "y": 300,
+            "displaysize": 16,
+            "hitsize": 12,
+            "color": "G",
+            "points": 5,
+            "rotatespeed": 0,
+            "shotsources": [
+                {
+                    "angle": -1,
+                    "speed": 4,
+                    "firerate": 20
+                }
+            ]
+        },
+        {
+            "id": "e4",
+            "delay": 60,
+            "x": 350,
+            "y": 300,
+            "displaysize": 16,
+            "hitsize": 12,
+            "color": "B",
+            "points": 5,
+            "rotatespeed": 0,
+            "shotsources": [
+                {
+                    "angle": 1,
+                    "speed": 4,
+                    "firerate": 20
+                }
+            ]
+        }
+    ]
+}
