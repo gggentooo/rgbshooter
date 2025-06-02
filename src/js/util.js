@@ -42,3 +42,111 @@ function rotateWithAnchor(x, y, a) {
     rotate(a);
     translate(-x, -y);
 }
+
+class Movement {
+    static get RL_ARC_1() {
+        return [
+            {
+                "frames": 0,
+                "xacc": 0.1,
+                "yacc": 0.08
+            },
+            {
+                "frames": 16,
+                "xacc": 0,
+                "yacc": 0
+            },
+            {
+                "frames": 20,
+                "xacc": -0.1,
+                "yacc": 0.05
+            },
+            {
+                "frames": 32,
+                "xacc": -0.05,
+                "yacc": 0
+            }
+        ];
+    }
+    static get LR_ARC_1() {
+        return [
+            {
+                "frames": 0,
+                "xacc": -0.1,
+                "yacc": 0.08
+            },
+            {
+                "frames": 16,
+                "xacc": 0,
+                "yacc": 0
+            },
+            {
+                "frames": 20,
+                "xacc": 0.1,
+                "yacc": 0.05
+            },
+            {
+                "frames": 32,
+                "xacc": 0.05,
+                "yacc": 0
+            }
+        ];
+    }
+    static get D_1() {
+        return [
+            {
+                "frames": 0,
+                "xacc": 0,
+                "yacc": 0.2
+            },
+            {
+                "frames": 20,
+                "xacc": 0,
+                "yacc": -0.1
+            },
+            {
+                "frames": 60,
+                "xacc": 0,
+                "yacc": 0
+            }
+        ];
+    }
+    static get D_2() {
+        return [
+            {
+                "frames": 0,
+                "xacc": 0,
+                "yacc": 0.2
+            },
+            {
+                "frames": 25,
+                "xacc": 0,
+                "yacc": -0.1
+            },
+            {
+                "frames": 75,
+                "xacc": 0,
+                "yacc": 0
+            }
+        ];
+    }
+    static get D_3() {
+        return [
+            {
+                "frames": 0,
+                "xacc": 0,
+                "yacc": 0.2
+            },
+            {
+                "frames": 30,
+                "xacc": 0,
+                "yacc": -0.1
+            },
+            {
+                "frames": 90,
+                "xacc": 0,
+                "yacc": 0
+            }
+        ];
+    }
+}

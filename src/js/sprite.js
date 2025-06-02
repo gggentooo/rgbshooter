@@ -29,12 +29,13 @@ class Sprite {
     setDefaultAngle(a) { this.da = a; }
 
     draw(x, y, a, s) {
+        var appliedangle = a + this.pa + this.da;
+        var appliedscale = s + this.ps;
         if (this.seethrough) {
             this.c.setAlpha(60);
             this.seethrough = false;
+            appliedscale += 0.4;
         }
-        var appliedangle = a + this.pa + this.da;
-        var appliedscale = s + this.ps;
         translate(x, y);
         rotate(appliedangle);
         scale(appliedscale);
