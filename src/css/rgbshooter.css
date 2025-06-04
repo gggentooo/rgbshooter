@@ -3,7 +3,7 @@
     margin: 0;
     padding: 0;
 }
-html, body {
+html, body, main {
     width: fit-content;
     height: fit-content;
     display: flex;
