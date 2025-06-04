@@ -3,7 +3,9 @@
     margin: 0;
     padding: 0;
 }
-body {
+html, body {
+    width: fit-content;
+    height: fit-content;
     display: flex;
     flex-direction: column;
     align-items: center;
