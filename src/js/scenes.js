@@ -4,6 +4,7 @@ class SceneManager {
         this.gameclear = new GSGameClear();
         this.test2 = new GSBTest2(this.gameclear);
         this.test1 = new GSBTest1(this.test2);
+        this.title = new GSTitle(this.test1);
     }
 }
 
@@ -17,15 +18,15 @@ class GameScene {
     initialize() {
         this.startframe = frameCount;
     }
-    end() { }
+    end() { this.finished_ending = true; }
     update() {
         this.currentframe = frameCount - this.startframe;
     }
     sceneFinished() { }
     draw() {
         game.drawObjects();
-        game.drawParticles();
         game.drawStatus();
+        game.drawParticles();
         if (game.debug === true) {
             game.debugText(8, 16);
             game.drawBoundary();
@@ -47,6 +48,9 @@ class GameSceneBattle extends GameScene {
     constructor(n) {
         super(n);
         this.enemies = [];
+    }
+    sceneFinished() {
+        return (game.enemies <= 0);
     }
     initialize() {
         super.initialize();
@@ -88,9 +92,6 @@ class GSBTest1 extends GameSceneBattle {
     constructor(n) {
         super(n);
     }
-    sceneFinished() {
-        return (game.enemies <= 0);
-    }
     initialize() {
         super.initialize();
         this.spawnEnemy("e1", Game.GAMEWIDTH / 2, -25, 16, 12, "K", 5, 0, 20, Movement.D_2, 1200);
@@ -106,9 +107,6 @@ class GSBTest1 extends GameSceneBattle {
 class GSBTest2 extends GameSceneBattle {
     constructor(n) {
         super(n);
-    }
-    sceneFinished() {
-        return (game.enemies <= 0);
     }
     initialize() {
         super.initialize();
@@ -134,6 +132,82 @@ class GSBTest2 extends GameSceneBattle {
     }
 }
 
+class GSTitle extends GameScene {
+    constructor(n) {
+        super(n);
+        this.gamestart = false;
+
+        this.c_gs = { "x": 190, "y": 230 };
+        this.c_lang = { "x": 190, "y": 260 };
+        this.c_en = { "x": 310, "y": 260 };
+        this.c_ko = { "x": 410, "y": 260 };
+        this.cursorpositions = [this.c_gs, this.c_lang];
+        this.cursor_idx = 0;
+        this.cursor = this.cursorpositions[this.cursor_idx];
+        this.langpositions = [this.c_en, this.c_ko];
+        this.lang_idx = 0;
+        this.lang = this.langpositions[this.lang_idx];
+        this.cursortimer = 0;
+    }
+    sceneFinished() {
+        return this.gamestart;
+    }
+    draw() {
+        background(Colors.WHITE);
+        game.obj[0].sprite.draw(200, 190, -0.2, 1);
+        game.obj[1].sprite.draw(220, 180, 0.1, 1);
+        game.obj[2].sprite.draw(240, 200, 0.2, 1);
+        push();
+        stroke(Colors.WHITE);
+        strokeWeight(2);
+        fill(Colors.BLACK);
+        textFont("Quicksand", 24);
+        text("RGBshooter", 200, 200);
+        textFont("Quicksand", 18);
+        text("Start Game", 200, 240);
+        text("Language", 200, 270);
+        textFont("IBM Plex Sans KR", 16);
+        text("English", 320, 270);
+        text("한국어", 420, 270);
+        fill(Colors.BLACK_200);
+        textFont("IBM Plex Sans KR", 14);
+        text("Z: Select\nArrow keys: Move cursor", 200, 340);
+        pop();
+        game.spr.cursor.draw(this.cursor.x, this.cursor.y, -HALF_PI, 1);
+        game.spr.cursor.draw(this.lang.x, this.lang.y, -HALF_PI, 1);
+        game.drawParticles();
+    }
+    update() {
+        game.updateParticles();
+        if (this.cursortimer > 0) {
+            this.cursortimer -= 1;
+            return;
+        }
+        if (KeyDown.DOWN) {
+            this.cursor_idx += 1;
+            this.cursortimer = 12;
+        }
+        if (KeyDown.UP) {
+            this.cursor_idx -= 1;
+            this.cursortimer = 12;
+        }
+        if (KeyDown.LEFT && this.cursor_idx === 1) {
+            this.lang_idx -= 1;
+            this.cursortimer = 12;
+        }
+        if (KeyDown.RIGHT && this.cursor_idx === 1) {
+            this.lang_idx += 1;
+            this.cursortimer = 12;
+        }
+        if (KeyDown.Z && this.cursor_idx === 0) {
+            this.gamestart = true;
+        }
+        this.cursor_idx = (this.cursorpositions.length + this.cursor_idx) % this.cursorpositions.length;
+        this.cursor = this.cursorpositions[this.cursor_idx];
+        this.lang_idx = (this.langpositions.length + this.lang_idx) % this.langpositions.length;
+        this.lang = this.langpositions[this.lang_idx];
+    }
+}
 class GSGameOver extends GameScene {
     constructor() {
         super(null);
@@ -142,7 +216,7 @@ class GSGameOver extends GameScene {
         background(Colors.WHITE);
         noStroke();
         fill(Colors.BLACK);
-        text("Game Over!\nRefresh page to restart.", 100, 100);
+        text("Game Over!\nToo bad...\n\nRefresh page to restart.", 200, 200);
     }
 }
 class GSGameClear extends GameScene {
@@ -153,6 +227,6 @@ class GSGameClear extends GameScene {
         background(Colors.WHITE);
         noStroke();
         fill(Colors.BLACK);
-        text("Game Clear!\nRefresh page to restart.", 100, 100);
+        text("Game Clear!\nRefresh page to restart.", 200, 200);
     }
 }

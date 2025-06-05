@@ -11,7 +11,7 @@ function setup() {
     angleMode(RADIANS);
     ellipseMode(CENTER);
     rectMode(CENTER);
-    textFont("Nunito", 16);
+    textFont("Quicksand", 16);
     background(Colors.WHITE);
     game.initialize();
 }

@@ -44,7 +44,7 @@ class Game {
         this.obj.push(new Ribbon());
         this.obj.push(new Goggles());
         this.obj.push(new Bellbottoms());
-        this.current_scene = this.scenes.test1;
+        this.current_scene = this.scenes.title;
         this.current_scene.initialize();
     }
 
@@ -81,7 +81,6 @@ class Game {
             this.obj[this.current_color].swapColors();
         }
     }
-
     checkDebugMode() {
         if (this.debug === true) { return; }
         if (KeyDown.D) { this.debug = true; }

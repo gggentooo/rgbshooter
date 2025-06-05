@@ -292,6 +292,7 @@ class Enemy extends GameObject {
         var xoff = this.w * Math.sin(a);
         var yoff = this.w * Math.cos(a) * -1;
         this.ss.push(new EnemyShotSource(this, this.colortype, xoff, yoff, a, sp, fr));
+        this.ss[this.ss.length - 1].updatePosition();
     }
 
     shoot() {

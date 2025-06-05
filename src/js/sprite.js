@@ -1,6 +1,7 @@
 class SpriteManager {
     loadSprites() {
         this.placeholder = new SpritePlaceholder();
+        this.cursor = new SpriteEnemy(Colors.BLACK, 5, 12);
     }
 }
 
@@ -293,6 +294,22 @@ class Particle extends Sprite {
 
     update() {
         this.frames += 1;
+    }
+}
+
+class ParticleFullscreenSwipeOne extends Particle {
+    constructor(f) {
+        super(0, 0, Colors.WHITE, f, Game.WINDOWWIDTH);
+    }
+
+    sprite() {
+        push();
+        rectMode(CORNER);
+        var currentheight = Game.WINDOWHEIGHT * Math.sin(this.frames / this.maxframes * PI);
+        noStroke();
+        fill(this.color);
+        rect(0, Game.WINDOWHEIGHT * (Math.cos(this.frames / this.maxframes * PI) + 0.5), Game.WINDOWWIDTH, currentheight);
+        pop();
     }
 }
 
