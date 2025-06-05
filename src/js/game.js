@@ -128,6 +128,7 @@ class Game {
     statusText(x, y) {
         noStroke();
         fill(Colors.BLACK);
+        textSize(18);
         text("LIFE: " + this.lifecount + "\nBOMB: " + this.bombcount, x, y);
     }
     debugText(x, y) {

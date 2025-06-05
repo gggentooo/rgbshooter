@@ -13,6 +13,14 @@
                 "sprite": "",
                 "content": "Oh, where'd he run off to..."
             }
+        ],
+        "tutorial": [
+            {
+                "name": "Ribbon",
+                "color": "R",
+                "sprite": "",
+                "content": "Winston! Winstooooon!"
+            }
         ]
     },
     "ko": {

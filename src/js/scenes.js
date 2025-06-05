@@ -53,6 +53,27 @@ class GameSceneDialogue extends GameScene {
         super.initialize();
         this.content = dialoguedata[this.what];
         this.currentstr = this.content[this.content_idx]["content"].split('');
+        this.namestr = this.content[this.content_idx]["name"];
+        this.clrstr = this.content[this.content_idx]["color"];
+        this.sprstr = this.content[this.content_idx]["sprite"];
+    }
+    chooseTextbox(str) {
+        switch (str) {
+            case "K":
+                return game.spr.textbox_black;
+            case "R":
+                return game.spr.textbox_red;
+            case "G":
+                return game.spr.textbox_green;
+            case "B":
+                return game.spr.textbox_blue;
+        }
+    }
+    choosePortrait(str) {
+        switch (str) {
+            default:
+                return game.spr.portrait_placeholder;
+        }
     }
     update() {
         super.update();
@@ -66,6 +87,8 @@ class GameSceneDialogue extends GameScene {
                     this.content_idx += 1;
                     this.printstr = "";
                     this.currentstr = this.content[this.content_idx]["content"].split('');
+                    this.namestr = this.content[this.content_idx]["name"];
+                    this.clrstr = this.content[this.content_idx]["color"];
                 }
             }
         } else {
@@ -75,12 +98,20 @@ class GameSceneDialogue extends GameScene {
     }
     draw() {
         super.draw();
-        game.spr.textbox_red.draw(Game.GAMEWIDTH / 2, 500, 0, 1);
+        this.chooseTextbox(this.clrstr).draw(Game.GAMEWIDTH / 2, 500, 0, 1);
+        this.choosePortrait(this.sprstr).draw(390, 420, 0, 1);
         push();
         noStroke();
         fill(Colors.WHITE);
+        textFont(textbox_font, 18);
+        text(this.namestr, Game.GAMEWIDTH / 2, 440, 400);
         textFont(textbox_font, 16);
-        text(this.printstr, Game.GAMEWIDTH / 2, 450, 360);
+        text(this.printstr, Game.GAMEWIDTH / 2, 475, 400);
+        if (this.char_idx >= this.currentstr.length) {
+            fill(Colors.WHITE_200);
+            textFont(textbox_font, 14);
+            text("Z ➤", Game.GAMEWIDTH - 80, 560);
+        }
         pop();
     }
 }
@@ -95,16 +126,6 @@ class GameSceneBattle extends GameScene {
     }
     initialize() {
         super.initialize();
-        // var edata = enemydata[idx];
-        // for (var i = 0; i < edata.length; i++) {
-        //     var d = edata[i];
-        //     this.spawnEnemy(d.id, d.x, d.y, d.displaysize, d.hitsize, d.color, d.points, d.rotatespeed, d.delay, d.movement, d.lifespan);
-        //     var ss = d.shotsources;
-        //     for (var j = 0; j < ss.length; j++) {
-        //         var source = ss[j];
-        //         this.enemies[d.id].addShotSource(PI + source.angle * TWO_PI / d.points, source.speed, source.firerate);
-        //     }
-        // }
     }
     end() {
         for (var i = 0; i < game.obj.length; i++) {
@@ -180,15 +201,21 @@ class GSTitle extends GameScene {
 
         this.c_gs = { "x": 190, "y": 230 };
         this.c_lang = { "x": 190, "y": 260 };
-        this.c_en = { "x": 310, "y": 260 };
-        this.c_ko = { "x": 410, "y": 260 };
-        this.cursorpositions = [this.c_gs, this.c_lang];
+        this.c_tutorial = { "x": 190, "y": 290 };
+        this.c_en = { "x": 380, "y": 260 };
+        this.c_ko = { "x": 480, "y": 260 };
+        this.t_yes = { "x": 380, "y": 290 };
+        this.t_no = { "x": 480, "y": 290 };
+        this.cursorpositions = [this.c_gs, this.c_lang, this.c_tutorial];
         this.cursor_idx = 0;
         this.cursor = this.cursorpositions[this.cursor_idx];
         this.langpositions = [this.c_en, this.c_ko];
         this.langstrings = ["en", "ko"];
         this.lang_idx = 0;
         this.lang = this.langpositions[this.lang_idx];
+        this.tpositions = [this.t_yes, this.t_no];
+        this.t_idx = 1;
+        this.tutorial = this.tpositions[this.t_idx];
         this.cursortimer = 0;
     }
     sceneFinished() {
@@ -212,19 +239,22 @@ class GSTitle extends GameScene {
         textFont("Quicksand", 18);
         text("Start Game", 200, 240);
         text("Language", 200, 270);
+        text("Play Tutorial?", 200, 300);
         textFont("IBM Plex Sans KR", 16);
-        text("English", 320, 270);
-        text("한국어", 420, 270);
+        text("English", 390, 270);
+        text("한국어", 490, 270);
+        text("Yes", 390, 300);
+        text("No", 490, 300);
         fill(Colors.BLACK_200);
         textFont("IBM Plex Sans KR", 14);
-        text("Z: Select\nArrow keys: Move cursor", 200, 340);
+        text("Z: Select\nArrow keys: Move cursor", 60, 560);
         pop();
         game.spr.cursor.draw(this.cursor.x, this.cursor.y, -HALF_PI, 1);
         game.spr.cursor.draw(this.lang.x, this.lang.y, -HALF_PI, 1);
+        game.spr.cursor.draw(this.tutorial.x, this.tutorial.y, -HALF_PI, 1);
         game.drawParticles();
     }
     update() {
-        game.updateParticles();
         if (this.cursortimer > 0) {
             this.cursortimer -= 1;
             return;
@@ -245,6 +275,14 @@ class GSTitle extends GameScene {
             this.lang_idx += 1;
             this.cursortimer = 12;
         }
+        if (KeyDown.LEFT && this.cursor_idx === 2) {
+            this.t_idx -= 1;
+            this.cursortimer = 12;
+        }
+        if (KeyDown.RIGHT && this.cursor_idx === 2) {
+            this.t_idx += 1;
+            this.cursortimer = 12;
+        }
         if (KeyDown.Z && this.cursor_idx === 0) {
             this.gamestart = true;
         }
@@ -253,6 +291,8 @@ class GSTitle extends GameScene {
         this.lang_idx = (this.langpositions.length + this.lang_idx) % this.langpositions.length;
         this.lang = this.langpositions[this.lang_idx];
         lang_global = this.langstrings[this.lang_idx];
+        this.t_idx = (this.tpositions.length + this.t_idx) % this.tpositions.length;
+        this.tutorial = this.tpositions[this.t_idx];
     }
 }
 class GSGameOver extends GameScene {

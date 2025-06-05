@@ -1,8 +1,12 @@
 class SpriteManager {
     loadSprites() {
         this.placeholder = new SpritePlaceholder();
+        this.portrait_placeholder = new SpritePortraitPlaceholder();
         this.cursor = new SpriteEnemy(Colors.BLACK, 5, 12);
+        this.textbox_black = new SpriteTextBox(Colors.BLACK);
         this.textbox_red = new SpriteTextBox(Colors.RED);
+        this.textbox_green = new SpriteTextBox(Colors.GREEN);
+        this.textbox_blue = new SpriteTextBox(Colors.BLUE);
     }
 }
 
@@ -137,6 +141,16 @@ class SpritePlaceholder extends Sprite {
         rect(0, 0, this.s, this.s);
     }
 }
+class SpritePortraitPlaceholder extends Sprite {
+    constructor() {
+        super(128, Colors.BLACK);
+    }
+
+    sprite() {
+        fill(this.c);
+        rect(0, 0, this.s, this.s);
+    }
+}
 
 class SpriteTextBox extends Sprite {
     constructor(c) {
@@ -152,8 +166,12 @@ class SpriteTextBox extends Sprite {
         rect(0, 0, this.width, this.height, 8);
         stroke(this.c);
         noFill();
-        rect(0, 0, this.width - this.m * 2, this.height - this.m * 2, 8);
+        rect(0, 0, this.width - this.m * 2, this.height - this.m * 2, 4);
     }
+}
+
+class SpriteLife extends Sprite {
+
 }
 
 class SpriteShot extends Sprite {
