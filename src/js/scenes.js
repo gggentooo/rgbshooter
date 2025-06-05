@@ -2,9 +2,12 @@ class SceneManager {
     loadScenes() {
         this.gameover = new GSGameOver();
         this.gameclear = new GSGameClear();
+
         this.test2 = new GSBTest2(this.gameclear);
         this.test1 = new GSBTest1(this.test2);
-        this.title = new GSTitle(this.test1);
+        this.d_prologue = new GameSceneDialogue(this.test1, "prologue");
+
+        this.title = new GSTitle(this.d_prologue);
     }
 }
 
@@ -35,12 +38,50 @@ class GameScene {
 }
 
 class GameSceneDialogue extends GameScene {
-    constructor(n) {
+    constructor(n, what) {
         super(n);
+        this.what = what;
+        this.content = null;
+        this.content_idx = 0;
+        this.char_idx = 0;
+        this.currentstr = "";
+        this.printstr = "";
+        this.finished = false;
+    }
+    sceneFinished() { return this.finished; }
+    initialize() {
+        super.initialize();
+        this.content = dialoguedata[this.what];
+        this.currentstr = this.content[this.content_idx]["content"].split('');
     }
     update() {
         super.update();
         game.updateParticles();
+        if (this.char_idx >= this.currentstr.length) {
+            if (KeyDown.Z) {
+                if (this.content_idx >= this.content.length - 1) {
+                    this.finished = true;
+                } else {
+                    this.char_idx = 0;
+                    this.content_idx += 1;
+                    this.printstr = "";
+                    this.currentstr = this.content[this.content_idx]["content"].split('');
+                }
+            }
+        } else {
+            this.printstr += this.currentstr[this.char_idx];
+            this.char_idx += 1;
+        }
+    }
+    draw() {
+        super.draw();
+        game.spr.textbox_red.draw(Game.GAMEWIDTH / 2, 500, 0, 1);
+        push();
+        noStroke();
+        fill(Colors.WHITE);
+        textFont(textbox_font, 16);
+        text(this.printstr, Game.GAMEWIDTH / 2, 450, 360);
+        pop();
     }
 }
 
@@ -145,12 +186,17 @@ class GSTitle extends GameScene {
         this.cursor_idx = 0;
         this.cursor = this.cursorpositions[this.cursor_idx];
         this.langpositions = [this.c_en, this.c_ko];
+        this.langstrings = ["en", "ko"];
         this.lang_idx = 0;
         this.lang = this.langpositions[this.lang_idx];
         this.cursortimer = 0;
     }
     sceneFinished() {
         return this.gamestart;
+    }
+    end() {
+        dialoguedata = dialoguedata[lang_global];
+        this.finished_ending = true;
     }
     draw() {
         background(Colors.WHITE);
@@ -206,6 +252,7 @@ class GSTitle extends GameScene {
         this.cursor = this.cursorpositions[this.cursor_idx];
         this.lang_idx = (this.langpositions.length + this.lang_idx) % this.langpositions.length;
         this.lang = this.langpositions[this.lang_idx];
+        lang_global = this.langstrings[this.lang_idx];
     }
 }
 class GSGameOver extends GameScene {

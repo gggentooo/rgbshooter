@@ -2,6 +2,7 @@ class SpriteManager {
     loadSprites() {
         this.placeholder = new SpritePlaceholder();
         this.cursor = new SpriteEnemy(Colors.BLACK, 5, 12);
+        this.textbox_red = new SpriteTextBox(Colors.RED);
     }
 }
 
@@ -141,7 +142,7 @@ class SpriteTextBox extends Sprite {
     constructor(c) {
         super(Game.GAMEWIDTH, c);
         this.width = Game.GAMEWIDTH - 48;
-        this.height = 200;
+        this.height = 160;
         this.m = 8;
     }
 

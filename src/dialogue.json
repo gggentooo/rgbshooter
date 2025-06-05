@@ -1,0 +1,34 @@
+{
+    "en": {
+        "prologue": [
+            {
+                "name": "???",
+                "color": "R",
+                "sprite": "",
+                "content": "Winston! Winstooooon!"
+            },
+            {
+                "name": "???",
+                "color": "R",
+                "sprite": "",
+                "content": "Oh, where'd he run off to..."
+            }
+        ]
+    },
+    "ko": {
+        "prologue": [
+            {
+                "name": "???",
+                "color": "R",
+                "sprite": "",
+                "content": "원스턴! 윈스터어어언!"
+            },
+            {
+                "name": "???",
+                "color": "R",
+                "sprite": "",
+                "content": "진짜... 어디로 간 거야...!"
+            }
+        ]
+    }
+}
