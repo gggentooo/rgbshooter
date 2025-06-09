@@ -52,6 +52,10 @@ class GameSceneDialogue extends GameScene {
     initialize() {
         super.initialize();
         this.content = dialoguedata[this.what];
+        if (this.content.length === 0) {
+            this.finished = true;
+            return;
+        }
         this.currentstr = this.content[this.content_idx]["content"].split('');
         this.namestr = this.content[this.content_idx]["name"];
         this.clrstr = this.content[this.content_idx]["color"];
@@ -247,7 +251,10 @@ class GSTitle extends GameScene {
         text("No", 490, 300);
         fill(Colors.BLACK_200);
         textFont("IBM Plex Sans KR", 14);
-        text("Z: Select\nArrow keys: Move cursor", 60, 560);
+        text("Z: Select\nArrow keys: Move cursor", 200, 360);
+        fill(Colors.BLACK_80);
+        textFont("IBM Plex Sans KR", 12);
+        text("RGBshooter\nVersion Beta", 20, 560);
         pop();
         game.spr.cursor.draw(this.cursor.x, this.cursor.y, -HALF_PI, 1);
         game.spr.cursor.draw(this.lang.x, this.lang.y, -HALF_PI, 1);
